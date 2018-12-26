@@ -43,19 +43,22 @@ impl Debug for Token {
         use self::Token::*;
 
         let buf;
+        macro_rules! format_ident {
+            ($fmt:expr, $($arg:tt)*) => {
+                {
+                    buf = format!($fmt, $($arg)*);
+                    buf.as_str()
+                }
+            }
+        }
+
         write!(
             f,
             "{}",
             match self {
-                Illegal(c) => {
-                    buf = format!("Illegal({})", c);
-                    buf.as_str()
-                }
-                Ident(ident) => ident,
-                Int(i) => {
-                    buf = i.to_string();
-                    buf.as_str()
-                }
+                Illegal(c) => format_ident!("Illegal({})", c),
+                Ident(ident) => format_ident!("Ident({})", ident),
+                Int(i) => format_ident!("{}", i.to_string()),
 
                 Assign => "=",
                 Plus => "+",
