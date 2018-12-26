@@ -16,6 +16,17 @@ let add = fn(x, y) {
 };
 
 let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
+
+if (5 < 10) {
+	return true;
+} else {
+	return false;
+}
+
+10 == 10;
+10 != 9;
 ";
     let expected = vec![
         Let,
@@ -53,6 +64,43 @@ let result = add(five, ten);
         Comma,
         Ident("ten".into()),
         Rparen,
+        Semicolon,
+        Bang,
+        Minus,
+        Slash,
+        Asterisk,
+        Int(5),
+        Semicolon,
+        Int(5),
+        Lt,
+        Int(10),
+        Gt,
+        Int(5),
+        Semicolon,
+        If,
+        Lparen,
+        Int(5),
+        Lt,
+        Int(10),
+        Rparen,
+        Lbrace,
+        Return,
+        True,
+        Semicolon,
+        Rbrace,
+        Else,
+        Lbrace,
+        Return,
+        False,
+        Semicolon,
+        Rbrace,
+        Int(10),
+        Eq,
+        Int(10),
+        Semicolon,
+        Int(10),
+        NotEq,
+        Int(9),
         Semicolon,
     ];
 

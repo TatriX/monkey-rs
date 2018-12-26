@@ -25,6 +25,11 @@ fn into_ident_or_keyword(ident: String) -> Token {
     match ident.as_str() {
         "fn" => Token::Function,
         "let" => Token::Let,
+        "true" => Token::True,
+        "false" => Token::False,
+        "if" => Token::If,
+        "else" => Token::Else,
+        "return" => Token::Return,
         _ => Token::Ident(ident),
     }
 }
@@ -45,6 +50,13 @@ impl Lexer {
         debug!("Read {:?} from {}", self.ch, self.position);
         self.position = self.read_position;
         self.read_position += 1;
+    }
+
+    fn peek_char(&self) -> char {
+        self.input
+            .get(self.read_position)
+            .cloned()
+            .unwrap_or(0 as char)
     }
 
     fn read_identifier(&mut self) -> String {
@@ -96,14 +108,34 @@ impl Iterator for Lexer {
 
         let token = match self.ch {
             ch if ch == 0 as char => return None,
-            '=' => Token::Assign,
             '+' => Token::Plus,
+            '-' => Token::Minus,
+            '/' => Token::Slash,
+            '*' => Token::Asterisk,
+            '<' => Token::Lt,
+            '>' => Token::Gt,
             ';' => Token::Semicolon,
             '(' => Token::Lparen,
             ')' => Token::Rparen,
             ',' => Token::Comma,
             '{' => Token::Lbrace,
             '}' => Token::Rbrace,
+            '=' => {
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::Eq
+                } else {
+                    Token::Assign
+                }
+            }
+            '!' => {
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::NotEq
+                } else {
+                    Token::Bang
+                }
+            }
             ch if ch.is_alphabetic() => return Some(into_ident_or_keyword(self.read_identifier())),
             ch if ch.is_digit(10) => return Some(Token::Int(self.read_number())),
             ch => Token::Illegal(ch),
