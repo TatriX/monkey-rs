@@ -14,7 +14,7 @@ impl Lexer {
             input: input.chars().collect(),
             position: 0,
             read_position: 0,
-            ch: 0 as char,
+            ch: '\0',
         };
         lexer.read_char();
         lexer
@@ -34,6 +34,7 @@ fn into_ident_or_keyword(ident: String) -> Token {
     }
 }
 
+// TODO: use peekable
 impl Lexer {
     fn skip_whitespace(&mut self) {
         while self.ch.is_whitespace() {
@@ -42,21 +43,14 @@ impl Lexer {
     }
 
     fn read_char(&mut self) {
-        self.ch = self
-            .input
-            .get(self.read_position)
-            .cloned()
-            .unwrap_or(0 as char);
+        self.ch = self.input.get(self.read_position).cloned().unwrap_or('\0');
         debug!("Read {:?} from {}", self.ch, self.position);
         self.position = self.read_position;
         self.read_position += 1;
     }
 
     fn peek_char(&self) -> char {
-        self.input
-            .get(self.read_position)
-            .cloned()
-            .unwrap_or(0 as char)
+        self.input.get(self.read_position).cloned().unwrap_or('\0')
     }
 
     fn read_identifier(&mut self) -> String {
@@ -107,7 +101,7 @@ impl Iterator for Lexer {
         self.skip_whitespace();
 
         let token = match self.ch {
-            ch if ch == 0 as char => return None,
+            '\0' => return None,
             '+' => Token::Plus,
             '-' => Token::Minus,
             '/' => Token::Slash,
