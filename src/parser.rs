@@ -12,6 +12,7 @@ pub struct Parser {
 #[derive(Debug)]
 pub enum ParseError {
     UnexpectedToken { got: Option<Token>, expected: Token },
+    UnexpectedEof,
 }
 
 type ParseResult<T> = Result<T, ParseError>;
@@ -48,6 +49,7 @@ impl Parser {
     fn parse_statement(&mut self, token: Token) -> ParseResult<Statement> {
         match token {
             Token::Let => self.parse_let_statement().map(Statement::Let),
+            Token::Return => self.parse_return_statement().map(Statement::Return),
             _ => unimplemented!("Parsing for {:?} unimplemented", token),
         }
     }
@@ -83,5 +85,21 @@ impl Parser {
                 expected: Token::Ident("_".into()),
             }),
         }
+    }
+
+    fn parse_return_statement(&mut self) -> ParseResult<ReturnStatement> {
+        self.next_token();
+
+        while let Some(token) = self.next_token() {
+            if let Token::Semicolon = token {
+                return Ok(ReturnStatement {
+                    value: Expression::Identifier(Identifier {
+                        value: "???".into(),
+                    }),
+                });
+            }
+        }
+
+        Err(ParseError::UnexpectedEof)
     }
 }

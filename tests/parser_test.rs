@@ -12,9 +12,7 @@ let x = 5;
 let y = 10;
 let foobar = 838383;
 ";
-    let lexer = Lexer::new(input);
-    let mut parser = Parser::new(lexer);
-
+    let mut parser = Parser::new(Lexer::new(input));
     let program = parser.parse_program().expect("Parse error");
 
     assert_eq!(program.statements.len(), 3);
@@ -26,6 +24,28 @@ let foobar = 838383;
             Statement::Let(let_stmt) => {
                 assert_eq!(let_stmt.name.value, expected[i]);
             }
+            _ => panic!("expected let statement, got {:?}", stmt),
+        }
+    }
+}
+
+#[test]
+fn test_return_statements() {
+    let _ = env_logger::try_init();
+
+    let input = "
+return 5;
+return 10;
+return 993322;
+";
+    let mut parser = Parser::new(Lexer::new(input));
+    let program = parser.parse_program().expect("Parse error");
+
+    assert_eq!(program.statements.len(), 3);
+
+    for (_i, stmt) in program.statements.iter().enumerate() {
+        match stmt {
+            Statement::Return(_let_stmt) => {}
             _ => panic!("expected let statement, got {:?}", stmt),
         }
     }
