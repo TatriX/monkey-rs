@@ -72,7 +72,7 @@ impl Lexer {
         ident
     }
 
-    fn read_number(&mut self) -> usize {
+    fn read_number(&mut self) -> i64 {
         let start_pos = self.read_position;
         let mut buf = String::new();
 
@@ -82,7 +82,7 @@ impl Lexer {
         }
 
         let number = buf
-            .parse::<usize>()
+            .parse::<i64>()
             .expect(&format!("Cannot parse number '{}'", &buf));
 
         debug!(

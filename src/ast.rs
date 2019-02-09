@@ -72,7 +72,7 @@ impl Display for ExpressionStatement {
 #[derive(Debug)]
 pub enum Expression {
     Identifier(Identifier),
-    IntegerLiteral(usize),
+    IntegerLiteral(i64),
 }
 
 impl Display for Expression {

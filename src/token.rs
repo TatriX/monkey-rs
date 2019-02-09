@@ -5,7 +5,7 @@ pub enum Token {
     Illegal(char),
     // For Eof, lexer.next() will just return None
     Ident(String),
-    Int(usize),
+    Int(i64),
 
     Assign,
     Plus,
