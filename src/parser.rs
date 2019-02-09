@@ -124,7 +124,7 @@ impl Parser {
     }
 
     fn parse_expression_statement(&mut self, token: Token) -> ParseResult<ExpressionStatement> {
-        let expression = parse_expression(token, Precedence::Lowest);
+        let expression = self.parse_expression(token, Precedence::Lowest)?;
 
         if let Some(Token::Semicolon) = self.peek_token {
             self.next_token();
@@ -132,12 +132,31 @@ impl Parser {
 
         Ok(ExpressionStatement { expression })
     }
-}
 
-fn parse_expression(token: Token, _precedence: Precedence) -> Expression {
-    match token {
-        Token::Ident(value) => Expression::Identifier(value.clone()),
-        Token::Int(int) => Expression::IntegerLiteral(int),
-        token => panic!("Unexpected token: {:?}", token),
+    fn parse_expression(
+        &mut self,
+        token: Token,
+        _precedence: Precedence,
+    ) -> ParseResult<Expression> {
+        match token {
+            Token::Ident(value) => Ok(Expression::Identifier(value.clone())),
+            Token::Int(int) => Ok(Expression::IntegerLiteral(int)),
+            Token::Bang => self.parse_prefix_epxression(PrefixOperator::Negate),
+            Token::Minus => self.parse_prefix_epxression(PrefixOperator::Minus),
+            token => panic!(
+                "Cannot parse prefix expression, unexpected token: {:?}",
+                token
+            ),
+        }
+    }
+
+    fn parse_prefix_epxression(&mut self, operator: PrefixOperator) -> ParseResult<Expression> {
+        self.next_token();
+
+        self.cur_token
+            .take()
+            .ok_or(ParseError::UnexpectedEof)
+            .and_then(|token| self.parse_expression(token, Precedence::Prefix))
+            .map(|right| Expression::PrefixExpression(operator, Box::new(right)))
     }
 }

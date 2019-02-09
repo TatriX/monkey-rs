@@ -58,6 +58,7 @@ impl Display for ReturnStatement {
     }
 }
 
+// TODO: remove this and use Expression directly?
 #[derive(Debug)]
 pub struct ExpressionStatement {
     pub expression: Expression,
@@ -69,10 +70,30 @@ impl Display for ExpressionStatement {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum PrefixOperator {
+    Negate,
+    Minus,
+}
+
+impl Display for PrefixOperator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                PrefixOperator::Negate => "!",
+                PrefixOperator::Minus => "-",
+            }
+        )
+    }
+}
+
 #[derive(Debug)]
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(i64),
+    PrefixExpression(PrefixOperator, Box<Expression>),
 }
 
 impl Display for Expression {
@@ -82,6 +103,7 @@ impl Display for Expression {
         match &self {
             Identifier(x) => write!(f, "{}", x),
             IntegerLiteral(x) => write!(f, "{}", x),
+            PrefixExpression(op, right) => write!(f, "({}{})", op, right),
         }
     }
 }

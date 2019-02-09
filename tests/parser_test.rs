@@ -6,6 +6,21 @@ fn parse(input: &str) -> Program {
     Parser::parse(input).expect("Parse error")
 }
 
+fn assert_integer_literal_expression(expr: Expression, value: i64) {
+    match expr {
+        Expression::IntegerLiteral(int) => assert_eq!(int, value),
+        _ => panic!("expected integer literal, got: {:?}", expr),
+    }
+}
+
+fn first_statement(program: Program) -> Statement {
+    program
+        .statements
+        .into_iter()
+        .next()
+        .expect("Program has no statements")
+}
+
 #[test]
 fn test_let_statements() {
     let _ = env_logger::try_init();
@@ -61,7 +76,7 @@ fn test_identifier_expression() {
 
     assert_eq!(program.statements.len(), 1);
 
-    match &program.statements[0] {
+    match first_statement(program) {
         Statement::Expression(expr) => match &expr.expression {
             Expression::Identifier(name) => assert_eq!(name, "foobar"),
             _ => panic!("expected identifier, got: {:?}", expr),
@@ -78,11 +93,36 @@ fn test_integer_literal_expression() {
     let program = parse(input);
 
     assert_eq!(program.statements.len(), 1);
-    match &program.statements[0] {
-        Statement::Expression(expr) => match expr.expression {
-            Expression::IntegerLiteral(int) => assert_eq!(int, 5),
-            _ => panic!("expected integer literal, got: {:?}", expr),
-        },
+
+    match first_statement(program) {
+        Statement::Expression(expr) => assert_integer_literal_expression(expr.expression, 5),
         got => panic!("expected experssion, got: {:?}", got),
+    }
+}
+
+#[test]
+fn test_prefix_expression() {
+    let _ = env_logger::try_init();
+
+    let tests = vec![
+        ("!5", PrefixOperator::Negate, 5),
+        ("-15", PrefixOperator::Minus, 15),
+    ];
+
+    for (input, operator, value) in tests {
+        let program = parse(input);
+
+        assert_eq!(program.statements.len(), 1);
+
+        match first_statement(program) {
+            Statement::Expression(expr) => match expr.expression {
+                Expression::PrefixExpression(op, right_expr) => {
+                    assert_eq!(op, operator);
+                    assert_integer_literal_expression(*right_expr, value);
+                }
+                _ => panic!("expected prefix expression, got: {:?}", expr),
+            },
+            got => panic!("expected experssion, got: {:?}", got),
+        }
     }
 }
