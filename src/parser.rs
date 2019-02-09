@@ -15,6 +15,7 @@ pub enum ParseError {
     UnexpectedEof,
 }
 
+#[allow(unused)] // TODO: remove
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 enum Precedence {
     Lowest,
@@ -85,10 +86,8 @@ impl Parser {
                     while let Some(token) = self.next_token() {
                         if let Token::Semicolon = token {
                             return Ok(LetStatement {
-                                name: Identifier { value: ident },
-                                value: Expression::Identifier(Identifier {
-                                    value: "???".into(),
-                                }),
+                                name: ident,
+                                value: Expression::Identifier("???".into()),
                             });
                         }
                     }
@@ -116,9 +115,7 @@ impl Parser {
         while let Some(token) = self.next_token() {
             if let Token::Semicolon = token {
                 return Ok(ReturnStatement {
-                    value: Expression::Identifier(Identifier {
-                        value: "???".into(),
-                    }),
+                    value: Expression::Identifier("???".into()),
                 });
             }
         }
@@ -137,11 +134,10 @@ impl Parser {
     }
 }
 
-fn parse_expression(token: Token, precedence: Precedence) -> Expression {
+fn parse_expression(token: Token, _precedence: Precedence) -> Expression {
     match token {
-        Token::Ident(value) => Expression::Identifier(Identifier {
-            value: value.clone(),
-        }),
+        Token::Ident(value) => Expression::Identifier(value.clone()),
+        Token::Int(int) => Expression::IntegerLiteral(int),
         token => panic!("Unexpected token: {:?}", token),
     }
 }

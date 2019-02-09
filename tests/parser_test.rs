@@ -1,6 +1,5 @@
 use env_logger;
 use monkey::ast::*;
-use monkey::lexer::Lexer;
 use monkey::parser::Parser;
 
 fn parse(input: &str) -> Program {
@@ -26,7 +25,7 @@ let foobar = 838383;
     for (i, stmt) in program.statements.iter().enumerate() {
         match stmt {
             Statement::Let(let_stmt) => {
-                assert_eq!(let_stmt.name.value, expected[i]);
+                assert_eq!(let_stmt.name, expected[i]);
             }
             _ => panic!("expected let statement, got {:?}", stmt),
         }
@@ -64,7 +63,25 @@ fn test_identifier_expression() {
 
     match &program.statements[0] {
         Statement::Expression(expr) => match &expr.expression {
-            Expression::Identifier(ident) => assert_eq!(ident.value, "foobar"),
+            Expression::Identifier(name) => assert_eq!(name, "foobar"),
+            _ => panic!("expected identifier, got: {:?}", expr),
+        },
+        got => panic!("expected experssion, got: {:?}", got),
+    }
+}
+
+#[test]
+fn test_integer_literal_expression() {
+    let _ = env_logger::try_init();
+
+    let input = "5;";
+    let program = parse(input);
+
+    assert_eq!(program.statements.len(), 1);
+    match &program.statements[0] {
+        Statement::Expression(expr) => match expr.expression {
+            Expression::IntegerLiteral(int) => assert_eq!(int, 5),
+            _ => panic!("expected integer literal, got: {:?}", expr),
         },
         got => panic!("expected experssion, got: {:?}", got),
     }

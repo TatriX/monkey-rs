@@ -33,6 +33,8 @@ impl Display for Statement {
     }
 }
 
+type Identifier = String;
+
 #[derive(Debug)]
 pub struct LetStatement {
     pub name: Identifier,
@@ -41,7 +43,7 @@ pub struct LetStatement {
 
 impl Display for LetStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "let {} = {};", self.name.value, &self.value)
+        write!(f, "let {} = {};", self.name, &self.value)
     }
 }
 
@@ -70,6 +72,7 @@ impl Display for ExpressionStatement {
 #[derive(Debug)]
 pub enum Expression {
     Identifier(Identifier),
+    IntegerLiteral(usize),
 }
 
 impl Display for Expression {
@@ -78,17 +81,7 @@ impl Display for Expression {
 
         match &self {
             Identifier(x) => write!(f, "{}", x),
+            IntegerLiteral(x) => write!(f, "{}", x),
         }
-    }
-}
-
-#[derive(Debug)]
-pub struct Identifier {
-    pub value: String,
-}
-
-impl Display for Identifier {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
     }
 }
