@@ -50,3 +50,22 @@ return 993322;
         }
     }
 }
+
+#[test]
+fn test_identifier_expression() {
+    let _ = env_logger::try_init();
+
+    let input = "foobar;";
+
+    let mut parser = Parser::new(Lexer::new(input));
+    let program = parser.parse_program().expect("Parse error");
+
+    assert_eq!(program.statements.len(), 1);
+
+    match &program.statements[0] {
+        Statement::Expression(expr) => match &expr.expression {
+            Expression::Identifier(ident) => assert_eq!(ident.value, "foobar"),
+        },
+        got => panic!("expected experssion, got: {:?}", got),
+    }
+}
