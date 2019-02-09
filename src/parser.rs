@@ -35,6 +35,10 @@ enum Precedence {
 type ParseResult<T> = Result<T, ParseError>;
 
 impl Parser {
+    pub fn parse(input: &str) -> ParseResult<Program> {
+        Parser::new(Lexer::new(input)).parse_program()
+    }
+
     pub fn new(lexer: Lexer) -> Self {
         let mut parser = Self {
             lexer,

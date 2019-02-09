@@ -3,6 +3,10 @@ use monkey::ast::*;
 use monkey::lexer::Lexer;
 use monkey::parser::Parser;
 
+fn parse(input: &str) -> Program {
+    Parser::parse(input).expect("Parse error")
+}
+
 #[test]
 fn test_let_statements() {
     let _ = env_logger::try_init();
@@ -12,8 +16,8 @@ let x = 5;
 let y = 10;
 let foobar = 838383;
 ";
-    let mut parser = Parser::new(Lexer::new(input));
-    let program = parser.parse_program().expect("Parse error");
+
+    let program = parse(input);
 
     assert_eq!(program.statements.len(), 3);
 
@@ -38,8 +42,7 @@ return 5;
 return 10;
 return 993322;
 ";
-    let mut parser = Parser::new(Lexer::new(input));
-    let program = parser.parse_program().expect("Parse error");
+    let program = parse(input);
 
     assert_eq!(program.statements.len(), 3);
 
@@ -55,10 +58,7 @@ return 993322;
 fn test_identifier_expression() {
     let _ = env_logger::try_init();
 
-    let input = "foobar;";
-
-    let mut parser = Parser::new(Lexer::new(input));
-    let program = parser.parse_program().expect("Parse error");
+    let program = parse("foobar;");
 
     assert_eq!(program.statements.len(), 1);
 
