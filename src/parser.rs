@@ -15,6 +15,23 @@ pub enum ParseError {
     UnexpectedEof,
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+enum Precedence {
+    Lowest,
+    /// ==
+    Equals,
+    /// > or <
+    LessGreater,
+    /// +
+    Sum,
+    /// *
+    Product,
+    /// -X or !X
+    Prefix,
+    /// myFunction(X)
+    Call,
+}
+
 type ParseResult<T> = Result<T, ParseError>;
 
 impl Parser {
@@ -50,7 +67,9 @@ impl Parser {
         match token {
             Token::Let => self.parse_let_statement().map(Statement::Let),
             Token::Return => self.parse_return_statement().map(Statement::Return),
-            _ => unimplemented!("Parsing for {:?} unimplemented", token),
+            token => self
+                .parse_expression_statement(token)
+                .map(Statement::Expression),
         }
     }
 
@@ -101,5 +120,24 @@ impl Parser {
         }
 
         Err(ParseError::UnexpectedEof)
+    }
+
+    fn parse_expression_statement(&mut self, token: Token) -> ParseResult<ExpressionStatement> {
+        let expression = parse_expression(token, Precedence::Lowest);
+
+        if let Some(Token::Semicolon) = self.peek_token {
+            self.next_token();
+        }
+
+        Ok(ExpressionStatement { expression })
+    }
+}
+
+fn parse_expression(token: Token, precedence: Precedence) -> Expression {
+    match token {
+        Token::Ident(value) => Expression::Identifier(Identifier {
+            value: value.clone(),
+        }),
+        token => panic!("Unexpected token: {:?}", token),
     }
 }
